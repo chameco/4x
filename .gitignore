@@ -1,0 +1,14 @@
+*.o
+*.pyc
+a.out
+build_*
+game
+saves
+*.exe
+*.dll
+*.so
+.ycm_extra_conf.py
+session.vim
+tags
+*.swp
+*.swo
