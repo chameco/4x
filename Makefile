@@ -1,6 +1,6 @@
 CC = clang
 SRCS = $(filter-out main.c,$(foreach file,$(wildcard src/*),$(notdir $(file))))
-GAME = game
+GAME = fracture
 BUILD_DIR = build_$(CC)
 LIB_DIR = lib_$(CC)
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
@@ -25,7 +25,7 @@ LINKER_FLAGS = $(LINKER_FLAGS_$(CC))
 
 vpath %.c src
 
-.PHONY: all directories install uninstall clean
+.PHONY: all directories clean
 
 all: directories $(GAME)
 
