@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <dirent.h>
 #include <math.h>
 
 #include <SDL2/SDL_image.h>

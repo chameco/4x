@@ -1,4 +1,4 @@
-#include "game.h"
+#include "client.h"
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -17,6 +17,8 @@
 
 #include "utils.h"
 #include "texture.h"
+#include "hex.h"
+#include "map.h"
 
 static SDL_Window *SCREEN;
 static SDL_GLContext *CONTEXT;
@@ -27,7 +29,7 @@ static int SCREEN_HEIGHT = 0;
 static int LAST_TIME = 0;
 static int CURRENT_TIME = 0;
 
-void initialize_game()
+void initialize_client()
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		log_err("Failed to initialize SDL");    
@@ -143,9 +145,12 @@ void set_running(bool b)
 	RUNNING = b;
 }
 
-void main_game_loop()
+void main_client_loop()
 {
-	texture *t = load_texture("assets/textures/hex.png", 128, 128);
+	//texture *t = load_texture("assets/textures/hex.png", 128, 128);
+	map m;
+	create_map(&m, "Test Map");
+	add_entity(&(m.hexes[1][1]), ENTITY_TEST);
 	RUNNING = true;
 	while (RUNNING) {
 		SDL_Delay(5);
@@ -162,8 +167,14 @@ void main_game_loop()
 			LAST_TIME = CURRENT_TIME;
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		draw_texture(t, 100, 100);
+		draw_map(&m);
 		SDL_GL_SwapWindow(SCREEN);
 	}
 	SDL_Quit();
+}
+
+int main(int argc, char *argv[])
+{
+	initialize_client();
+	main_client_loop();
 }

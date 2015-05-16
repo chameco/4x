@@ -1,6 +1,6 @@
 CC = clang
-SRCS = $(filter-out main.c,$(foreach file,$(wildcard src/*),$(notdir $(file))))
-GAME = fracture
+SRCS = $(filter-out client.c,$(foreach file,$(wildcard src/*),$(notdir $(file))))
+CLIENT = fracture
 BUILD_DIR = build_$(CC)
 LIB_DIR = lib_$(CC)
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
@@ -27,7 +27,7 @@ vpath %.c src
 
 .PHONY: all directories clean
 
-all: directories $(GAME)
+all: directories $(CLIENT)
 
 directories: $(BUILD_DIR)
 
@@ -37,7 +37,7 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.o: %.c
 	$(CC) -o $@ -c $(CFLAGS) $<
 
-$(GAME): $(BUILD_DIR)/main.o $(OBJS)
+$(CLIENT): $(BUILD_DIR)/client.o $(OBJS)
 	$(CC) $^ $(LINKER_FLAGS) -o $@
 clean:
 	rm $(BUILD_DIR)/*.o

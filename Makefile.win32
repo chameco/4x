@@ -1,18 +1,18 @@
 CC = x86_64-w64-mingw32-cc
-SRCS = $(filter-out main.c,$(foreach file,$(wildcard src/*),$(notdir $(file))))
-GAME = fracture.exe
+SRCS = $(filter-out client.c,$(foreach file,$(wildcard src/*),$(notdir $(file))))
+CLIENT = win32/fracture.exe
 BUILD_DIR = build_$(CC)
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
 
 CFLAGS = -static -DGLEW_STATIC -Iinclude -std=c99 -g -Wall -I/usr/i486-mingw32/include -I/usr/local/include
 
-LINKER_FLAGS = -L. -L/usr/i486-mingw32/lib -L/usr/i486-mingw32/bin -lmingw32 -lglew32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lm -lcuttle -lopengl32 -lglu32
+LINKER_FLAGS = -Lwin32 -L/usr/i486-mingw32/lib -L/usr/i486-mingw32/bin -lmingw32 -lglew32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lm -lcuttle -lopengl32 -lglu32
 
 vpath %.c src
 
-.PHONY: all directories clean
+.PHONY: all directories package clean
 
-all: directories $(GAME)
+all: directories $(CLIENT)
 
 directories: $(BUILD_DIR)
 
@@ -22,7 +22,12 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.o: %.c
 	$(CC) -o $@ -c $(CFLAGS) $<
 
-$(GAME): $(BUILD_DIR)/main.o $(OBJS)
+$(CLIENT): $(BUILD_DIR)/client.o $(OBJS)
 	$(CC) $^ $(LINKER_FLAGS) -o $@
+
+package:
+	cp -r assets win32
+	zip -r fracture_win32.zip win32
+
 clean:
 	rm $(BUILD_DIR)/*.o
