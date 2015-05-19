@@ -1,6 +1,7 @@
 CC = x86_64-w64-mingw32-cc
-SRCS = $(filter-out client.c,$(foreach file,$(wildcard src/*),$(notdir $(file))))
+SRCS = $(filter-out server.c,$(filter-out client.c,$(foreach file,$(wildcard src/*),$(notdir $(file)))))
 CLIENT = win32/fracture.exe
+SERVER = win32/server.exe
 BUILD_DIR = build_$(CC)
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
 
@@ -12,7 +13,7 @@ vpath %.c src
 
 .PHONY: all directories package clean
 
-all: directories $(CLIENT)
+all: directories $(CLIENT) $(SERVER)
 
 directories: $(BUILD_DIR)
 
@@ -23,6 +24,9 @@ $(BUILD_DIR)/%.o: %.c
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 $(CLIENT): $(BUILD_DIR)/client.o $(OBJS)
+	$(CC) $^ $(LINKER_FLAGS) -o $@
+
+$(SERVER): $(BUILD_DIR)/server.o $(OBJS)
 	$(CC) $^ $(LINKER_FLAGS) -o $@
 
 package:
