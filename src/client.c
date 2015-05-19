@@ -17,13 +17,13 @@
 
 #include "utils.h"
 #include "network.h"
+#include "camera.h"
 #include "texture.h"
 #include "hex.h"
 #include "map.h"
 
 static SDL_Window *SCREEN;
 static bool RUNNING = false;
-//static const GLfloat CAMERA_SCALE = 1.0;
 static int SCREEN_WIDTH = 0;
 static int SCREEN_HEIGHT = 0;
 static int LAST_TIME = 0;
@@ -78,6 +78,7 @@ void initialize_client()
 
 	initialize_utils();
 	initialize_texture();
+	initialize_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 void initGL()
@@ -117,16 +118,6 @@ SDL_Window *get_screen()
 	return SCREEN;
 }
 
-int get_screen_width()
-{
-	return SCREEN_WIDTH;
-}
-
-int get_screen_height()
-{
-	return SCREEN_HEIGHT;
-}
-
 void take_screenshot(char *path)
 {
 	SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
@@ -160,19 +151,41 @@ void main_client_loop()
 		SDL_Delay(5);
 		CURRENT_TIME = SDL_GetTicks();
 		if (CURRENT_TIME - LAST_TIME > 40) {
-			pull_input(CONN, &m, sizeof(m));
+			if (CURRENT_TIME - LAST_TIME > 80) {
+				pull_input(CONN, &m, sizeof(m));
+			}
 			SDL_Event event;
 			while (SDL_PollEvent(&event)) {
 				switch (event.type) {
 					case SDL_QUIT:
 						RUNNING = false;
 						break;
+					case SDL_KEYDOWN:
+						if (event.key.keysym.sym == SDLK_LEFT) {
+							move_camera(get_camera_x() - 8, get_camera_y());
+						} else if (event.key.keysym.sym == SDLK_RIGHT) {
+							move_camera(get_camera_x() + 8, get_camera_y());
+						} else if (event.key.keysym.sym == SDLK_UP) {
+							move_camera(get_camera_x(), get_camera_y() - 8);
+						} else if (event.key.keysym.sym == SDLK_DOWN) {
+							move_camera(get_camera_x(), get_camera_y() + 8);
+						}
 				}
 			}
 			LAST_TIME = CURRENT_TIME;
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		translate_camera();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
 		draw_map(&m);
+
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
 		SDL_GL_SwapWindow(SCREEN);
 	}
 	SDL_Quit();

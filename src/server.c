@@ -7,6 +7,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <SDL2/SDL.h>
+
 #include <cuttle/debug.h>
 #include <cuttle/utils.h>
 
@@ -16,6 +18,8 @@
 #include "map.h"
 
 static bool RUNNING = false;
+static int LAST_TIME = 0;
+static int CURRENT_TIME = 0;
 
 static network_context CONTEXT;
 static network_connection CONN;
@@ -38,7 +42,11 @@ void main_server_loop()
 	add_entity(&(m.hexes[1][1]), ENTITY_TEST);
 	RUNNING = true;
 	while (RUNNING) {
-		push_output(CONN, &m, sizeof(m));
+		SDL_Delay(5);
+		CURRENT_TIME = SDL_GetTicks();
+		if (CURRENT_TIME - LAST_TIME > 40) {
+			push_output(CONN, &m, sizeof(m));
+		}
 	}
 }
 
