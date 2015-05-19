@@ -6,7 +6,7 @@ OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
 
 CFLAGS = -static -DGLEW_STATIC -Iinclude -std=c99 -g -Wall -I/usr/i486-mingw32/include -I/usr/local/include
 
-LINKER_FLAGS = -Lwin32 -L/usr/i486-mingw32/lib -L/usr/i486-mingw32/bin -lmingw32 -lglew32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lm -lcuttle -lopengl32 -lglu32
+LINKER_FLAGS = -Lwin32 -L/usr/i486-mingw32/lib -L/usr/i486-mingw32/bin -lmingw32 -lglew32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lm -lcuttle -lopengl32 -lglu32 -lzmq
 
 vpath %.c src
 

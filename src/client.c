@@ -16,18 +16,21 @@
 #include <cuttle/utils.h>
 
 #include "utils.h"
+#include "network.h"
 #include "texture.h"
 #include "hex.h"
 #include "map.h"
 
 static SDL_Window *SCREEN;
-static SDL_GLContext *CONTEXT;
 static bool RUNNING = false;
 //static const GLfloat CAMERA_SCALE = 1.0;
 static int SCREEN_WIDTH = 0;
 static int SCREEN_HEIGHT = 0;
 static int LAST_TIME = 0;
 static int CURRENT_TIME = 0;
+
+static network_context CONTEXT;
+static network_connection CONN;
 
 void initialize_client()
 {
@@ -55,7 +58,7 @@ void initialize_client()
 	}
 
 	SDL_MaximizeWindow(SCREEN);
-	CONTEXT = SDL_GL_CreateContext(SCREEN);
+	SDL_GL_CreateContext(SCREEN);
 
 	SDL_DisplayMode dmode;
 	if (SDL_GetWindowDisplayMode(SCREEN, &dmode) != 0) {
@@ -69,6 +72,9 @@ void initialize_client()
 	IMG_Init(IMG_INIT_PNG);
 	Mix_Init(MIX_INIT_OGG);
 	Mix_OpenAudio(22050, AUDIO_S16, 2, 4096);
+
+	CONTEXT = make_context();
+	CONN = connect_to_server(CONTEXT, "127.0.0.1");
 
 	initialize_utils();
 	initialize_texture();
@@ -140,7 +146,7 @@ void take_screenshot(char *path)
 	SDL_FreeSurface(image);
 }
 
-void set_running(bool b)
+void set_client_running(bool b)
 {
 	RUNNING = b;
 }
@@ -149,13 +155,12 @@ void main_client_loop()
 {
 	//texture *t = load_texture("assets/textures/hex.png", 128, 128);
 	map m;
-	create_map(&m, "Test Map");
-	add_entity(&(m.hexes[1][1]), ENTITY_TEST);
 	RUNNING = true;
 	while (RUNNING) {
 		SDL_Delay(5);
 		CURRENT_TIME = SDL_GetTicks();
 		if (CURRENT_TIME - LAST_TIME > 40) {
+			pull_input(CONN, &m, sizeof(m));
 			SDL_Event event;
 			while (SDL_PollEvent(&event)) {
 				switch (event.type) {

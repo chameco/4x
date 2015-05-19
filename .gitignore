@@ -2,8 +2,9 @@
 *.pyc
 a.out
 build_*
-game
-saves
+win32
+fracture
+server
 *.exe
 *.dll
 *.so

@@ -21,12 +21,12 @@ void create_entity(entity *e, entity_id t)
 {
 	if (e == NULL) log_err("Invalid address on entity creation");
 	e->t = t;
-	if (ENTITY_TYPES[e->t].t == NULL) {
-		ENTITY_TYPES[e->t].t = load_texture(ENTITY_TYPES[e->t].path, ENTITY_TYPES[e->t].w, ENTITY_TYPES[e->t].h);
-	}
 }
 
 void draw_entity(entity *e, double x, double y)
 {
+	if (ENTITY_TYPES[e->t].t == NULL) {
+		ENTITY_TYPES[e->t].t = load_texture(ENTITY_TYPES[e->t].path, ENTITY_TYPES[e->t].w, ENTITY_TYPES[e->t].h);
+	}
 	draw_texture(ENTITY_TYPES[e->t].t, x, y);
 }

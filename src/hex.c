@@ -24,9 +24,6 @@ void create_hex(hex *h, hex_id t)
 	h->t = t;
 	h->entity_count = 0;
 	memset(h->entities, 0, sizeof(h->entities));
-	if (HEX_TYPES[h->t].t == NULL) {
-		HEX_TYPES[h->t].t = load_texture(HEX_TYPES[h->t].path, HEX_DIM, HEX_DIM);
-	}
 }
 
 entity *add_entity(hex *h, entity_id t)
@@ -38,6 +35,9 @@ entity *add_entity(hex *h, entity_id t)
 
 void draw_hex(hex *h, double x, double y)
 {
+	if (HEX_TYPES[h->t].t == NULL) {
+		HEX_TYPES[h->t].t = load_texture(HEX_TYPES[h->t].path, HEX_DIM, HEX_DIM);
+	}
 	draw_texture(HEX_TYPES[h->t].t, x, y);
 	for (int i = 0; i < h->entity_count; ++i) {
 		draw_entity(&(h->entities[i]), x + 48, y + 48);

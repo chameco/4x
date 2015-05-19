@@ -63,8 +63,8 @@ bool is_unbroken_line(double x0, double y0, double x1, double y1);
 thunk make_thunk(void (*cfunc)());
 void execute_thunk(thunk cb);
 
-int max(int x, int y);
-int min(int x, int y);
+int integer_max(int x, int y);
+int integer_min(int x, int y);
 
-double dmax(double x, double y);
-double dmin(double x, double y);
+double double_max(double x, double y);
+double double_min(double x, double y);
