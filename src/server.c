@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <string.h>
 #include <math.h>
 
@@ -16,10 +17,9 @@
 #include "network.h"
 #include "hex.h"
 #include "map.h"
+#include "action.h"
 
 static bool RUNNING = false;
-static int LAST_TIME = 0;
-static int CURRENT_TIME = 0;
 
 static network_context CONTEXT;
 static network_connection CONN;
@@ -39,14 +39,20 @@ void main_server_loop()
 {
 	map m;
 	create_map(&m, "Test Map");
-	add_entity(&(m.hexes[1][1]), ENTITY_TEST);
+	create_entity(add_entity(&(m.hexes[1][1])), T_PROGENITOR, 1);
+	entity_selector s = {1, 1, 0};
+	move_entity(&m, s, 2, 2);
 	RUNNING = true;
+	action_message buf;
+	char data[512] = {0};
 	while (RUNNING) {
-		SDL_Delay(5);
-		CURRENT_TIME = SDL_GetTicks();
-		if (CURRENT_TIME - LAST_TIME > 40) {
-			push_output(CONN, &m, sizeof(m));
+		SDL_Delay(200);
+		pull_input(CONN, &buf, sizeof(buf));
+		if (buf.len > 0 && buf.len < 512) {
+			pull_input(CONN, data, buf.len);
 		}
+		dispatch_action(&m, buf, data);
+		push_output(CONN, &m, sizeof(m));
 	}
 }
 

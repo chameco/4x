@@ -26,5 +26,5 @@ typedef struct hex {
 } hex;
 
 void create_hex(hex *h, hex_id t);
-entity *add_entity(hex *h, entity_id t);
+entity *add_entity(hex *h);
 void draw_hex(hex *h, double x, double y);

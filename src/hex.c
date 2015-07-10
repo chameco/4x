@@ -15,7 +15,7 @@
 #include "entity.h"
 
 hex_type HEX_TYPES[HEX_END_PLACEHOLDER] = {
-	[HEX_EMPTY] = {"Empty", "assets/textures/hex.png", 0, NULL},
+	[HEX_EMPTY] = {"Empty", "assets/textures/hexes/hex.png", 0, NULL},
 };
 
 void create_hex(hex *h, hex_id t)
@@ -26,11 +26,9 @@ void create_hex(hex *h, hex_id t)
 	memset(h->entities, 0, sizeof(h->entities));
 }
 
-entity *add_entity(hex *h, entity_id t)
+entity *add_entity(hex *h)
 {
-	entity *e = &(h->entities[h->entity_count++]);
-	create_entity(e, t);
-	return e;
+	return &(h->entities[h->entity_count++]);
 }
 
 void draw_hex(hex *h, double x, double y)
@@ -39,7 +37,4 @@ void draw_hex(hex *h, double x, double y)
 		HEX_TYPES[h->t].t = load_texture(HEX_TYPES[h->t].path, HEX_DIM, HEX_DIM);
 	}
 	draw_texture(HEX_TYPES[h->t].t, x, y);
-	for (int i = 0; i < h->entity_count; ++i) {
-		draw_entity(&(h->entities[i]), x + 48, y + 48);
-	}
 }

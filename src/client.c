@@ -21,6 +21,7 @@
 #include "texture.h"
 #include "hex.h"
 #include "map.h"
+#include "action.h"
 
 static SDL_Window *SCREEN;
 static bool RUNNING = false;
@@ -31,6 +32,9 @@ static int CURRENT_TIME = 0;
 
 static network_context CONTEXT;
 static network_connection CONN;
+
+static entity_selector CURRENTLY_SELECTED = {0, 0, 0};
+static texture *CURSOR;
 
 void initialize_client()
 {
@@ -79,6 +83,8 @@ void initialize_client()
 	initialize_utils();
 	initialize_texture();
 	initialize_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	CURSOR = load_texture("assets/textures/cursor.png", HEX_DIM, HEX_DIM);
 }
 
 void initGL()
@@ -103,7 +109,7 @@ void initGL()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glClearColor(0, 0, 0, 0);
+	glClearColor(0, 0, 0.2, 0);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -144,16 +150,16 @@ void set_client_running(bool b)
 
 void main_client_loop()
 {
-	//texture *t = load_texture("assets/textures/hex.png", 128, 128);
 	map m;
+	action_message login = {{0, 0, 0}, ACTION_LOGIN, 0};
+	push_output(CONN, &login, sizeof(login));
+	pull_input(CONN, &m, sizeof(m));
 	RUNNING = true;
 	while (RUNNING) {
-		SDL_Delay(5);
+		SDL_Delay(20);
 		CURRENT_TIME = SDL_GetTicks();
 		if (CURRENT_TIME - LAST_TIME > 40) {
-			if (CURRENT_TIME - LAST_TIME > 80) {
-				pull_input(CONN, &m, sizeof(m));
-			}
+			pull_input_noblock(CONN, &m, sizeof(m));
 			SDL_Event event;
 			while (SDL_PollEvent(&event)) {
 				switch (event.type) {
@@ -162,13 +168,13 @@ void main_client_loop()
 						break;
 					case SDL_KEYDOWN:
 						if (event.key.keysym.sym == SDLK_LEFT) {
-							move_camera(get_camera_x() - 8, get_camera_y());
+							move_camera(get_camera_x() - 16, get_camera_y());
 						} else if (event.key.keysym.sym == SDLK_RIGHT) {
-							move_camera(get_camera_x() + 8, get_camera_y());
+							move_camera(get_camera_x() + 16, get_camera_y());
 						} else if (event.key.keysym.sym == SDLK_UP) {
-							move_camera(get_camera_x(), get_camera_y() - 8);
+							move_camera(get_camera_x(), get_camera_y() - 16);
 						} else if (event.key.keysym.sym == SDLK_DOWN) {
-							move_camera(get_camera_x(), get_camera_y() + 8);
+							move_camera(get_camera_x(), get_camera_y() + 16);
 						}
 				}
 			}
@@ -183,6 +189,7 @@ void main_client_loop()
 		glLoadIdentity();
 
 		draw_map(&m);
+		draw_texture(CURSOR, CURRENTLY_SELECTED.x*(HEX_DIM-32), CURRENTLY_SELECTED.y*(HEX_DIM-17) + (CURRENTLY_SELECTED.x % 2 == 0 ? 0 : 64 - 8));
 
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();

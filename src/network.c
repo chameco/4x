@@ -83,6 +83,14 @@ void socket_recieve(network_socket s, void *msg, int len)
 	}
 }
 
+void socket_recieve_noblock(network_socket s, void *msg, int len)
+{
+	int rc = zmq_recv(s.socket, msg, len, ZMQ_NOBLOCK);
+	if (rc == -1 && errno != EAGAIN) {
+		log_err("Receiving failed with message '%s'", zmq_strerror(errno));
+	}
+}
+
 network_connection connect_to_server(network_context c, char *addr)
 {
 	network_connection conn;
@@ -118,4 +126,9 @@ void push_output(network_connection c, void *msg, int len)
 void pull_input(network_connection c, void *msg, int len)
 {
 	socket_recieve(c.incoming, msg, len);
+}
+
+void pull_input_noblock(network_connection c, void *msg, int len)
+{
+	socket_recieve_noblock(c.incoming, msg, len);
 }
